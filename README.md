@@ -7,6 +7,8 @@ If one of the streams closes/errors all streams in the pipeline will be destroye
 npm install pumpify
 ```
 
+[![build status](http://img.shields.io/travis/mafintosh/pumpify.svg?style=flat)](http://travis-ci.org/mafintosh/pumpify)
+
 ## Usage
 
 Pass the streams you want to pipe together to pumpify `pipeline = pumpify(s1, s2, s3, ...)`.
