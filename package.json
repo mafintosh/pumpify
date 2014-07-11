@@ -1,0 +1,35 @@
+{
+  "name": "pumpify",
+  "version": "0.0.0",
+  "description": "Combine an array of streams into a single duplex stream using pump and duplexify",
+  "main": "index.js",
+  "dependencies": {
+    "duplexify": "^1.1.0",
+    "pump": "^0.3.2"
+  },
+  "devDependencies": {
+    "tape": "^2.13.3"
+  },
+  "scripts": {
+    "test": "tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mafintosh/pumpify"
+  },
+  "keywords": [
+    "pump",
+    "duplexify",
+    "duplex",
+    "streams",
+    "stream",
+    "pipeline",
+    "combine"
+  ],
+  "author": "Mathias Buus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/pumpify/issues"
+  },
+  "homepage": "https://github.com/mafintosh/pumpify"
+}
