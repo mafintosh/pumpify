@@ -1,38 +1,35 @@
 var pump = require('pump')
 var duplexify = require('duplexify')
 
-var Foo = function(proxy) {
-  this._proxy = proxy
-}
-
-Foo.prototype._e
-
 var pumpifier = function(duplex) {
   return function() {
     var streams = Array.isArray(arguments[0]) ? arguments[0] : Array.prototype.slice.call(arguments)
-    var first = streams[0]
-    var last = streams[streams.length-1]
+    var dup = duplex(null, null, {destroy:false})
 
-    var dup = duplex()
-    var w = first.writable ? first : null
-    var r = last.readable ? last : null
+    var w = streams[0]
+    var r = streams[streams.length-1]
 
-    dup.setWritable(w)
-    dup.setReadable(r)
+    r = r.readable ? r : null
+    w = w.writable ? w : null
 
-    var onclose = function() {
-      for (var i = 0; i < streams.length; i++) {
-        if (!streams[i].destroy) continue;
-        // we only need to destroy one. pump will care of the others
-        if (streams[i] !== r && streams[i] !== w) streams[i].destroy()
-      }
+    var onprefinish = function(cb) {
+      if (r._writableState.ended) return cb()
+      r.on('finish', cb)
     }
 
+    var onclose = function() {
+      streams[0].emit('error', new Error('stream was destroyed'))
+    }
+
+    if (r && r._writableState) dup.on('prefinish', onprefinish)
     dup.on('close', onclose)
     pump(streams, function(err) {
       dup.removeListener('close', onclose)
       dup.destroy(err)
     })
+
+    dup.setWritable(w)
+    dup.setReadable(r)
 
     return dup
   }
