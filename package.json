@@ -4,8 +4,8 @@
   "description": "Combine an array of streams into a single duplex stream using pump and duplexify",
   "main": "index.js",
   "dependencies": {
-    "duplexify": "^1.1.0",
-    "pump": "^0.3.2"
+    "duplexify": "^1.2.1",
+    "pump": "^0.3.3"
   },
   "devDependencies": {
     "tape": "^2.13.3",
