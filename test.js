@@ -1,6 +1,7 @@
 var tape = require('tape')
 var through = require('through2')
 var pumpify = require('./')
+var stream = require('stream')
 
 tape('basic', function(t) {
   t.plan(3)
@@ -70,4 +71,46 @@ tape('close', function(t) {
   })
 
   test.emit('error', new Error('lol'))
+})
+
+tape('end waits for last one', function(t) {
+  var ran = false
+
+  var a = through()
+  var b = through()
+  var c = through(function(data, enc, cb) {
+    setTimeout(function() {
+      ran = true
+      cb()
+    }, 100)
+  })
+
+  var pipeline = pumpify(a, b, c)
+
+  pipeline.write('foo')
+  pipeline.end(function() {
+    t.ok(ran)
+    t.end()
+  })
+
+  t.ok(!ran)
+})
+
+tape('always wait for finish', function(t) {
+  var a = new stream.Readable()
+  a._read = function() {}
+  a.push('hello')
+
+  var pipeline = pumpify(a, through(), through())
+  var ran = false
+
+  pipeline.on('finish', function() {
+    t.ok(ran)
+    t.end()
+  })
+
+  setTimeout(function() {
+    ran = true
+    a.push(null)
+  }, 100)
 })
