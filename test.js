@@ -143,3 +143,21 @@ tape('async', function(t) {
     )
   }, 100)
 })
+
+tape('early destroy', function(t) {
+  var a = through()
+  var b = through()
+  var c = through()
+
+  b.destroy = function() {
+    t.ok(true)
+    t.end()
+  }
+
+  var pipeline = pumpify()
+
+  pipeline.destroy()
+  setTimeout(function() {
+    pipeline.setPipeline(a, b, c)
+  }, 100)
+})

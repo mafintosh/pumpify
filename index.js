@@ -45,6 +45,7 @@ var define = function(opts) {
       self.destroy(err)
     })
 
+    if (this.destroyed) return onclose()
     this.setWritable(w)
     this.setReadable(r)
   }
