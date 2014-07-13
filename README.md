@@ -30,6 +30,21 @@ fs.createReadStream('some-gzipped-tarball.tgz').pipe(untar)
 If you are pumping object streams together use `pipeline = pumpify.obj(s1, s2, ...)`.
 Call `pipeline.destroy()` to destroy the pipeline (including the streams passed to pumpify).
 
+### Using `setPipeline(s1, s2, ...)`
+
+Similar to [duplexify](https://github.com/mafintosh/duplexify) you can also define the pipeline asynchronously using `setPipeline(s1, s2, ...)`
+
+``` js
+var untar = pumpify()
+
+setTimeout(function() {
+  // will start draining the input now
+  untar.setPipeline(zlib.createGunzip(), tar.extract('output-folder'))
+}, 1000)
+
+fs.createReadStream('some-gzipped-tarball.tgz').pipe(untar)
+```
+
 ## License
 
 MIT
