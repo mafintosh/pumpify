@@ -1,10 +1,27 @@
 var pump = require('pump')
+var util = require('util')
 var duplexify = require('duplexify')
 
-var pumpifier = function(duplex) {
-  return function() {
-    var streams = Array.isArray(arguments[0]) ? arguments[0] : Array.prototype.slice.call(arguments)
-    var dup = duplex(null, null, {destroy:false})
+var toArray = function(arguments) {
+  if (!arguments.length) return []
+  return Array.isArray(arguments[0]) ? arguments[0] : Array.prototype.slice.call(arguments)
+}
+
+var define = function(opts) {
+  var Pumpify = function() {
+    var streams = toArray(arguments)
+
+    if (!(this instanceof Pumpify)) return new Pumpify(streams)
+    duplexify.call(this, null, null, opts)
+
+    if (streams.length) this.setPipeline(streams)
+  }
+
+  util.inherits(Pumpify, duplexify)
+
+  Pumpify.prototype.setPipeline = function() {
+    var streams = toArray(arguments)
+    var self = this
 
     var w = streams[0]
     var r = streams[streams.length-1]
@@ -21,19 +38,19 @@ var pumpifier = function(duplex) {
       streams[0].emit('error', new Error('stream was destroyed'))
     }
 
-    if (r && r._writableState) dup.on('prefinish', onprefinish)
-    dup.on('close', onclose)
+    if (r && r._writableState) this.on('prefinish', onprefinish)
+    this.on('close', onclose)
     pump(streams, function(err) {
-      dup.removeListener('close', onclose)
-      dup.destroy(err)
+      self.removeListener('close', onclose)
+      self.destroy(err)
     })
 
-    dup.setWritable(w)
-    dup.setReadable(r)
-
-    return dup
+    this.setWritable(w)
+    this.setReadable(r)
   }
+
+  return Pumpify
 }
 
-module.exports = pumpifier(duplexify)
-module.exports.obj = pumpifier(duplexify.obj)
+module.exports = define({destroy:false})
+module.exports.obj = define({destroy:false, objectMode:true, highWaterMark:16})

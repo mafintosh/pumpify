@@ -114,3 +114,32 @@ tape('always wait for finish', function(t) {
     a.push(null)
   }, 100)
 })
+
+tape('async', function(t) {
+  var pipeline = pumpify()
+
+  t.plan(4)
+
+  pipeline.write('hello')
+  pipeline.on('data', function(data) {
+    t.same(data.toString(), 'HELLO')
+    t.end()
+  })
+
+  setTimeout(function() {
+    pipeline.setPipeline(
+      through(function(data, enc, cb) {
+        t.same(data.toString(), 'hello')
+        cb(null, data.toString().toUpperCase())
+      }),
+      through(function(data, enc, cb) {
+        t.same(data.toString(), 'HELLO')
+        cb(null, data.toString().toLowerCase())
+      }),
+      through(function(data, enc, cb) {
+        t.same(data.toString(), 'hello')
+        cb(null, data.toString().toUpperCase())
+      })
+    )
+  }, 100)
+})
