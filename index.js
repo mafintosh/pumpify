@@ -1,6 +1,6 @@
 var pump = require('pump')
 var util = require('util')
-var duplexify = require('duplexify')
+var Duplexify = require('duplexify')
 
 var toArray = function(arguments) {
   if (!arguments.length) return []
@@ -11,23 +11,16 @@ var define = function(opts) {
   var Pumpify = function() {
     var streams = toArray(arguments)
     if (!(this instanceof Pumpify)) return new Pumpify(streams)
-    duplexify.call(this, null, null, opts)
-    this._onflush = null
-    this._flushed = false
+    Duplexify.call(this, null, null, opts)
     if (streams.length) this.setPipeline(streams)
   }
 
-  util.inherits(Pumpify, duplexify)
-
-  Pumpify.prototype._flush = function(cb) {
-    if (this._flushed) return cb()
-    this._onflush = cb
-  }
+  util.inherits(Pumpify, Duplexify)
 
   Pumpify.prototype.setPipeline = function() {
     var streams = toArray(arguments)
     var self = this
-
+    var ended = false
     var w = streams[0]
     var r = streams[streams.length-1]
 
@@ -39,11 +32,15 @@ var define = function(opts) {
     }
 
     this.on('close', onclose)
+    this.on('prefinish', function() {
+      if (!ended) self.cork()
+    })
+
     pump(streams, function(err) {
       self.removeListener('close', onclose)
       if (err) return self.destroy(err)
-      if (self._onflush) self._onflush()
-      self._flushed = true
+      ended = true
+      self.uncork()
     })
 
     if (this.destroyed) return onclose()
