@@ -10,14 +10,19 @@ var toArray = function(arguments) {
 var define = function(opts) {
   var Pumpify = function() {
     var streams = toArray(arguments)
-
     if (!(this instanceof Pumpify)) return new Pumpify(streams)
     duplexify.call(this, null, null, opts)
-
+    this._onflush = null
+    this._flushed = false
     if (streams.length) this.setPipeline(streams)
   }
 
   util.inherits(Pumpify, duplexify)
+
+  Pumpify.prototype._flush = function(cb) {
+    if (this._flushed) return cb()
+    this._onflush = cb
+  }
 
   Pumpify.prototype.setPipeline = function() {
     var streams = toArray(arguments)
@@ -29,20 +34,16 @@ var define = function(opts) {
     r = r.readable ? r : null
     w = w.writable ? w : null
 
-    var onprefinish = function(cb) {
-      if (r._writableState.ended) return cb()
-      r.on('finish', cb)
-    }
-
     var onclose = function() {
       streams[0].emit('error', new Error('stream was destroyed'))
     }
 
-    if (r && r._writableState) this.on('prefinish', onprefinish)
     this.on('close', onclose)
     pump(streams, function(err) {
       self.removeListener('close', onclose)
-      self.destroy(err)
+      if (err) return self.destroy(err)
+      if (self._onflush) self._onflush()
+      self._flushed = true
     })
 
     if (this.destroyed) return onclose()
