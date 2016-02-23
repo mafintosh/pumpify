@@ -1,5 +1,5 @@
 var pump = require('pump')
-var util = require('util')
+var inherits = require('inherits')
 var Duplexify = require('duplexify')
 
 var toArray = function(arguments) {
@@ -15,7 +15,7 @@ var define = function(opts) {
     if (streams.length) this.setPipeline(streams)
   }
 
-  util.inherits(Pumpify, Duplexify)
+  inherits(Pumpify, Duplexify)
 
   Pumpify.prototype.setPipeline = function() {
     var streams = toArray(arguments)

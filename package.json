@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "duplexify": "^3.1.2",
+    "inherits": "^2.0.1",
     "pump": "^1.0.0"
   },
   "devDependencies": {
