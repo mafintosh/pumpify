@@ -2,9 +2,9 @@ var pump = require('pump')
 var inherits = require('inherits')
 var Duplexify = require('duplexify')
 
-var toArray = function(arguments) {
-  if (!arguments.length) return []
-  return Array.isArray(arguments[0]) ? arguments[0] : Array.prototype.slice.call(arguments)
+var toArray = function(args) {
+  if (!args.length) return []
+  return Array.isArray(args[0]) ? args[0] : Array.prototype.slice.call(args)
 }
 
 var define = function(opts) {
