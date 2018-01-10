@@ -168,7 +168,6 @@ tape('preserves error', function (t) {
     cb(new Error('stop'))
   })
   var c = through()
-
   var s = pumpify()
 
   s.on('error', function (err) {
