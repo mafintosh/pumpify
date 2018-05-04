@@ -182,13 +182,16 @@ tape('preserves error', function (t) {
 
 tape('preserves error again', function (t) {
   var ws = new stream.Writable()
-  var rs = new stream.Readable()
+  var rs = new stream.Readable({highWaterMark: 16})
 
   ws._write = function (data, enc, cb) {
     cb(null)
   }
+
   rs._read = function () {
-    this.push(Buffer.alloc(16 * 1024))
+    process.nextTick(function () {
+      rs.push('hello world')
+    })
   }
 
   var pumpifyErr = pumpify(
