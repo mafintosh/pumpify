@@ -4,7 +4,7 @@
   "description": "Combine an array of streams into a single duplex stream using pump and duplexify",
   "main": "index.js",
   "dependencies": {
-    "duplexify": "^3.5.3",
+    "duplexify": "^3.6.0",
     "inherits": "^2.0.3",
     "pump": "^2.0.0"
   },
