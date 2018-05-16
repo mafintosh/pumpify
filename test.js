@@ -2,6 +2,7 @@ var tape = require('tape')
 var through = require('through2')
 var pumpify = require('./')
 var stream = require('stream')
+var duplexify = require('duplexify')
 
 tape('basic', function(t) {
   t.plan(3)
@@ -208,4 +209,27 @@ tape('preserves error again', function (t) {
       t.ok(err.message !== 'premature close', 'does not close with premature close')
       t.end()
     })
+})
+
+tape('returns error from duplexify', function (t) {
+  var a = through()
+  var b = duplexify()
+  var s = pumpify()
+
+  s.setPipeline(a, b)
+
+  s.on('error', function (err) {
+    t.same(err.message, 'stop')
+    t.end()
+  })
+
+  s.write('data')
+  // Test passes if `.end()` is not called
+  s.end()
+
+  b.setWritable(through())
+
+  setImmediate(function () {
+    b.destroy(new Error('stop'))
+  })
 })
