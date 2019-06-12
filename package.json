@@ -1,6 +1,6 @@
 {
   "name": "pumpify",
-  "version": "1.5.1",
+  "version": "2.0.0",
   "description": "Combine an array of streams into a single duplex stream using pump and duplexify",
   "main": "index.js",
   "dependencies": {
