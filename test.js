@@ -189,8 +189,11 @@ tape('preserves error again', function (t) {
     cb(null)
   }
 
+  var once = true
   rs._read = function () {
     process.nextTick(function () {
+      if (!once) return
+      once = false
       rs.push('hello world')
     })
   }
